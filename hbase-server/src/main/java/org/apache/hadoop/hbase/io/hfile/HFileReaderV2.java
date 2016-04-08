@@ -447,6 +447,7 @@ public class HFileReaderV2 extends AbstractHFileReader {
           HFile.dataBlockReadCnt.incrementAndGet();
         }
 
+        System.out.println(unpacked.toString());
         return unpacked;
       }
     } finally {
@@ -654,8 +655,8 @@ public class HFileReaderV2 extends AbstractHFileReader {
 
       if (reader.getComparator()
           .compareOnlyKeyPortion(
-              new KeyValue.KeyOnlyKeyValue(firstKey.array(), firstKey.arrayOffset(),
-                  firstKey.limit()), key) >= 0) {
+            new KeyValue.KeyOnlyKeyValue(firstKey.array(), firstKey.arrayOffset(),
+              firstKey.limit()), key) >= 0) {
         long previousBlockOffset = seekToBlock.getPrevBlockOffset();
         // The key we are interested in
         if (previousBlockOffset == -1) {

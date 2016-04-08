@@ -171,6 +171,11 @@ public class TestHFile extends HBaseTestCase {
         kv = new KeyValue(Bytes.toBytes(key), Bytes.toBytes("family"), Bytes.toBytes("qual"),
             Bytes.toBytes(value + key));
         writer.append(kv);
+
+        for(int j = 0; j < 100000; j++) {
+          writer.append(kv);
+        }
+
       }
     }
     return (start + n);
@@ -254,7 +259,24 @@ public class TestHFile extends HBaseTestCase {
       fs.getFileStatus(ncTFile).getLen(), cacheConf, conf);
     System.out.println(cacheConf.toString());
     // Load up the index.
-    reader.loadFileInfo();
+    Map<byte[], byte[]> map = reader.loadFileInfo();
+    for (Map.Entry<byte[], byte[]> entry : map.entrySet()) {
+      String key = Bytes.toStringBinary(entry.getKey());
+      System.out.print("key: " + key + ", value: ");
+      if (key.equals("KEY_VALUE_VERSION")) {
+        System.out.println(Bytes.toInt(entry.getValue()));
+      } else if (key.equals("MAX_MEMSTORE_TS_KEY")) {
+        System.out.println(Bytes.toLong(entry.getValue()));
+      } else if (key.equals("hfile.AVG_KEY_LEN")) {
+        System.out.println(Bytes.toInt(entry.getValue()));
+      } else if (key.equals("hfile.AVG_VALUE_LEN")) {
+        System.out.println(Bytes.toInt(entry.getValue()));
+      } else {
+        System.out.println(Bytes.toStringBinary(entry.getValue()));
+      }
+    }
+    System.out.println("length: " + reader.length());
+
     // Get a scanner that caches and that does not use pread.
     HFileScanner scanner = reader.getScanner(true, false);
     // Align scanner at start of the file.
